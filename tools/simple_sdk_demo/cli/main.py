@@ -43,7 +43,7 @@ def parse(args):
     parser.add_argument("--system",
                         type=str,
                         default='h200_sxm',
-                        choices=['h100_sxm', 'h200_sxm'],
+                        choices=['h100_sxm', 'h200_sxm', 'h20_sxm'],
                         help='GPU+system Type')
     parser.add_argument("--model",
                         type=str,

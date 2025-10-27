@@ -520,7 +520,7 @@ class DisaggDeepSeekModel(BaseModel):
    
         # moe computation
         self.generation_ops.extend([ops.MoE(f'generation_moe', self._num_layers*self._mtp_scale_factor, h, self._moe_inter_size, self._topk, self._num_experts, 
-                                            moe_tp_size, moe_ep_size, moe_quant_mode, workload_distribution, 
+                                            moe_tp_size, moe_ep_size, moe_quant_mode, 'uniform', 
                                             attention_dp_size, is_context=False, moe_backend=moe_backend)])
 
 
