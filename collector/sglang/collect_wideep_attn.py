@@ -58,7 +58,8 @@ def get_attention_prefill_test_cases():
     context_batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     context_seq_lengths = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
-    attention_backends = ["flashinfer", "fa3"]
+    # Collect MLA attention for FlashInfer, FA3, and FlashMLA backends
+    attention_backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
 
     for attention_backend in attention_backends:
@@ -87,7 +88,8 @@ def get_attention_decode_test_cases():
     generation_batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     generation_seq_lengths = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
-    attention_backends = ["flashinfer", "fa3"]
+    # Collect MLA decode attention for FlashInfer, FA3, and FlashMLA backends
+    attention_backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
 
     for attention_backend in attention_backends:
@@ -128,7 +130,8 @@ def load_model_runner(model_path, attention_backend, head_num, test_layer, dtype
     num_layers = int(os.environ.get("SGLANG_TEST_NUM_LAYERS", "2"))
     load_format = os.environ.get("SGLANG_LOAD_FORMAT", "dummy")
 
-    server_args = ServerArgs(
+    # Common ServerArgs for all MLA backends
+    server_args_kwargs = dict(
         model_path=model_path,
         dtype=dtype,
         device=device_base,
@@ -138,6 +141,16 @@ def load_model_runner(model_path, attention_backend, head_num, test_layer, dtype
         mem_fraction_static=0.5,
         disable_radix_cache=True,
     )
+
+    if attention_backend == "flashmla":
+        server_args_kwargs.update(
+            {
+                "page_size": 64,
+                "kv_cache_dtype": "fp8_e4m3",
+            }
+        )
+
+    server_args = ServerArgs(**server_args_kwargs)
 
     server_args.attention_backend = attention_backend
     print(f"Using attention backend: {attention_backend}, gpu_id: {gpu_id}")
@@ -566,14 +579,16 @@ def run_attention_torch(
 
 def get_wideep_mla_context_test_cases():
     """Returns list of (attention_backend, head_num, perf_filename) tuples."""
-    backends = ["flashinfer", "fa3"]
+    # Include FlashMLA in MLA context benchmarks
+    backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
     return [[backend, head_num, "wideep_context_mla_perf.txt"] for backend in backends for head_num in head_nums]
 
 
 def get_wideep_mla_generation_test_cases():
     """Returns list of (attention_backend, head_num, perf_filename) tuples."""
-    backends = ["flashinfer", "fa3"]
+    # Include FlashMLA in MLA generation benchmarks
+    backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
     return [[backend, head_num, "wideep_generation_mla_perf.txt"] for backend in backends for head_num in head_nums]
 
@@ -713,3 +728,4 @@ if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("ALL TESTS COMPLETED")
     print("=" * 50)
+    
