@@ -58,7 +58,6 @@ def get_attention_prefill_test_cases():
     context_batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     context_seq_lengths = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
-    # Collect MLA attention for FlashInfer, FA3, and FlashMLA backends
     attention_backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
 
@@ -88,7 +87,6 @@ def get_attention_decode_test_cases():
     generation_batch_sizes = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
     generation_seq_lengths = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
-    # Collect MLA decode attention for FlashInfer, FA3, and FlashMLA backends
     attention_backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
 
@@ -130,7 +128,6 @@ def load_model_runner(model_path, attention_backend, head_num, test_layer, dtype
     num_layers = int(os.environ.get("SGLANG_TEST_NUM_LAYERS", "2"))
     load_format = os.environ.get("SGLANG_LOAD_FORMAT", "dummy")
 
-    # Common ServerArgs for all MLA backends
     server_args_kwargs = dict(
         model_path=model_path,
         dtype=dtype,
@@ -579,7 +576,6 @@ def run_attention_torch(
 
 def get_wideep_mla_context_test_cases():
     """Returns list of (attention_backend, head_num, perf_filename) tuples."""
-    # Include FlashMLA in MLA context benchmarks
     backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
     return [[backend, head_num, "wideep_context_mla_perf.txt"] for backend in backends for head_num in head_nums]
@@ -587,7 +583,6 @@ def get_wideep_mla_context_test_cases():
 
 def get_wideep_mla_generation_test_cases():
     """Returns list of (attention_backend, head_num, perf_filename) tuples."""
-    # Include FlashMLA in MLA generation benchmarks
     backends = ["flashinfer", "fa3", "flashmla"]
     head_nums = [128, 64, 32, 16]
     return [[backend, head_num, "wideep_generation_mla_perf.txt"] for backend in backends for head_num in head_nums]
@@ -728,4 +723,3 @@ if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("ALL TESTS COMPLETED")
     print("=" * 50)
-    
